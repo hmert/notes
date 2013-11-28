@@ -1,0 +1,289 @@
+
+<!DOCTYPE html>
+
+<head>
+	
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="initial-scale = 1.0,maximum-scale = 1.0" />
+
+	<title></title>
+
+	<style type="text/css">
+		* {
+			position: relative;
+			margin: 0;
+			padding: 0;
+			-webkit-box-sizing: border-box;
+			-moz-box-sizing: border-box;
+			-ms-box-sizing: border-box;
+			box-sizing: border-box;
+			-webkit-transition: 0.2s linear;
+			-moz-transition: 0.2s linear;
+			transition: 0.2s linear;
+		}
+
+		@font-face {
+		    font-family: 'Cambo';
+		    font-style: normal;
+		    font-weight: 400;
+		    src: local('Cambo'), local('Cambo-Regular'), url(http://themes.googleusercontent.com/static/fonts/cambo/v2/Hpv6vCTojizn0Qwl_Bb2SQ.woff) format('woff');
+		}
+
+		html, body {
+		    height: 100%;
+		}
+
+		body {
+			font-family: "Cambo",serif;
+			font-size:16px;
+			background: #e6e6e6;
+			overflow-x:hidden;
+		}
+		.notepad {
+		    background: #f6f6f6;
+		    box-shadow: 0 1px 4px hsla(0,0%,0%,.25);
+		    margin: 50px auto;
+		    position: relative;
+		    width: 492px;
+		    background-image: -webkit-radial-gradient(#e6e6e6 21%, transparent 21%),
+		                      -webkit-radial-gradient(hsla(0,0%,0%,.25) 21%, transparent 26%),
+		                      -webkit-linear-gradient(top, hsla(0,0%,0%,0) 0%, hsla(0,0%,0%,0) 95%,
+		                                                   hsla(180,25%,50%,.1) 95%, hsla(180,25%,50%,.1) 100%);
+		    background-image: -moz-radial-gradient(#e6e6e6 21%, transparent 21%),
+		                      -moz-radial-gradient(#e6e6e6 10%, transparent 12%),
+		                      -moz-linear-gradient(top, hsla(0,0%,0%,0) 0%, hsla(0,0%,0%,0) 95%,
+		                                                   hsla(180,25%,50%,.1) 95%, hsla(180,25%,50%,.1) 100%);
+		    background-image: radial-gradient(#e6e6e6 21%, transparent 21%),
+		                      radial-gradient(#e6e6e6 10%, transparent 12%), 
+		                      linear-gradient(top, hsla(0,0%,0%,0) 0%, hsla(0,0%,0%,0) 95%,
+		                                                   hsla(180,25%,50%,.1) 95%, hsla(180,25%,50%,.1) 100%);
+		    background-position: 6px 6px, 6px 5px, 50% 18px;
+		    background-repeat: repeat-y, repeat-y, repeat;
+		    background-size: 48px 48px, 48px 48px, 24px 24px;
+		    padding: 48px 24px 24px 84px;
+		}
+		.notepad:after {
+		    border-left: 1px solid hsla(0,75%,50%,.2);
+		    border-right: 1px solid hsla(0,75%,50%,.2);
+		    bottom: 0;
+		    content: '';
+		    left: 58px;
+		    position: absolute;
+		    top: 0;
+		    width: 2px;
+		}
+		.notepad:before {
+		    bottom: 8px;
+		    border-radius: 4px;
+		    box-shadow: 0 10px 10px hsla(0,0%,0%,.25);
+		    content: '';
+		    height: 100px;
+		    max-width: 300px;
+		    position: absolute;
+		    right: 5px;
+		    width: 300px;
+		    z-index: -10; 
+		    -webkit-transform: rotate(2deg);    
+		       -moz-transform: rotate(2deg);   
+		        -ms-transform: rotate(2deg);   
+		         -o-transform: rotate(2deg);
+		            transform: rotate(2deg);
+		}
+		section {
+		    position: absolute;
+		    top: 0;
+		    left: 0;
+		    margin: 8px;
+		    width: 95%;
+		    height: 100%;
+		}
+
+		section #notes-list {
+		    width:100%;
+		}
+
+		section #notes-list li {
+			display: block;
+			line-height: 16px;
+			margin-bottom:8px;
+		}
+
+		section input[type="checkbox"] {
+			margin: 2px 10px 0 0;
+			float: left;
+		}
+
+		section input#notes-input {
+		    position: relative;
+		    top: 4px;
+		    left: 24px;
+		    margin: 0;
+		    width: 90%;
+		    background: transparent;
+		    font: inherit;
+		    border:none;
+		}
+
+		section input#notes-input:focus {
+			outline:none;
+		}
+
+		section #notes-list li.done span {
+			color: #ccc;
+			text-decoration: line-through;
+		}
+
+		section #notes-list li span.close {
+			position:relative;
+			top: -1px;
+			right: 4px;
+			color: #d55c70;
+			cursor: pointer;
+			font-size: 110%;
+			float:right;
+		}
+
+		section #notes-list li span.close:hover {
+			color: #711d2b;
+		}
+	</style>
+	
+</head>
+
+<body>
+
+	<section class="notepad">
+		<ul id="notes-list"></ul>
+		<input type="text" name="notes-input" id="notes-input" />
+	</section>
+
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+	<script type="text/javascript">
+		window.notes = function() {
+			'use strict';
+
+			var notesList = null;
+			var inputField = null;
+			var storageName = 'todoItems';
+
+			var noteNum = 0;
+			var todoList = [];
+
+			var createNote = function(txt) {
+				return {
+					'done': 0,
+					'text': txt
+				};
+			};
+
+			var setTodoList = function() {
+				localStorage.setItem(storageName, JSON.stringify(todoList));
+			};
+
+			var getListItems = function() {
+				var data = JSON.parse(localStorage.getItem(storageName) || '{}');
+				if(data.length > 0){
+					todoList = data;
+					$.each(todoList, function(i, note){
+						writeToNotes(note, false);
+					});
+				}
+			};
+
+			var setListItems = function(note) {
+				todoList.push(note);
+				setTodoList();
+			};
+
+			var writeToNotes = function(note, append) {
+				var done = note.done ? ' done' : '';
+				var checked = note.done ? 'checked' : '';
+				notesList.append('<li id="note-'+noteNum+'" class="'+done+'" data-id="'+noteNum+'"><input type="checkbox" id="done-'+noteNum+'" class="checkbox" '+checked+' /><span class="note-text">'+note.text+'</span><span class="close">x</span></li>');
+				notesList.find('li#note-'+noteNum).fadeIn(100);
+				if(append){
+					setListItems(note);
+				}
+				resetNoteInput();
+				noteNum++;
+			};
+
+			var removeListItem = function(index) {
+				var position = todoList.indexOf(index);
+				todoList.splice(position, 1);
+				setTodoList();
+			};
+
+			var focusEventOn = function() {
+				$(document).on('keydown', focusOnInput);
+			};
+
+			var focusEventOff = function() {
+				$(document).off('keydown');
+			};
+
+			var changeNoteState = function() {
+				var _this = $(this);
+				var index = _this.parent().data('id'),
+					checked = _this.prop('checked');
+
+				if(checked) {
+					_this.parent().addClass('done');
+					todoList[index].done = 1;
+				} else {
+					_this.parent().removeClass('done');
+					todoList[index].done = 0;
+				}
+				setTodoList();
+			};
+
+			var removeNote = function() {
+				var index = $(this).parent().data('id');
+				removeListItem(index);
+				$(this).parent().remove();
+				noteNum--;
+			};
+
+			var focusOnInput = function() {
+				$(inputField).focus();
+				focusEventOff();
+			};
+
+			var focusOffInput = function() {
+				$(inputField).focus();
+				focusEventOff();
+			};
+
+			var resetNoteInput = function() {
+				inputField.val('');
+			};
+
+			return {
+				init: function() {
+					jQuery(document).ready(function() {
+						inputField = $('input#notes-input');
+						notesList = $('#notes-list');
+
+						getListItems();
+						focusOnInput();
+
+						$('body').click(focusOnInput);
+
+						inputField.on('keypress', function(e){
+							focusOnInput();
+							if(e.keyCode===13){
+								if($(this).val().length>0){
+									writeToNotes(createNote($(this).val()), true);
+								}
+							}
+						}).blur(focusEventOn);
+						$( document ).on( "click", "input.checkbox",changeNoteState);
+						$( document ).on( "click", "section li span.close",removeNote);
+					});
+				}
+			};
+		}();
+		window.notes.init();
+	</script>
+</body>
+
+</html>
